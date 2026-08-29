@@ -71,6 +71,7 @@ struct PanelTabBar: View {
         case .files: "Files"
         case .music: "Music"
         case .mirror: "Mirror"
+        case .timer: "Timer"
         }
     }
 }

@@ -26,6 +26,8 @@ struct NotchContentView: View {
                         }
                     case .mirror:
                         MirrorView()
+                    case .timer:
+                        NotchTimerView()
                     case .music:
                         if let info = vm.nowPlaying {
                             NowPlayingControls(

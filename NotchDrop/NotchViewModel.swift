@@ -32,12 +32,16 @@ class NotchViewModel: NSObject, ObservableObject {
             .init(width: 600, height: nowPlaying?.hasProgress == true ? 244 : 216)
         case .mirror:
             .init(width: 600, height: 300)
+        case .timer:
+            .init(width: 600, height: 230)
         }
     }
 
     /// Music only earns a tab while something is loaded to play.
     var availableTabs: [PanelTab] {
-        nowPlaying == nil ? [.files, .mirror] : [.files, .music, .mirror]
+        nowPlaying == nil
+            ? [.files, .mirror, .timer]
+            : [.files, .music, .mirror, .timer]
     }
 
     var showsPanelTabs: Bool { availableTabs.count > 1 }
@@ -60,6 +64,9 @@ class NotchViewModel: NSObject, ObservableObject {
     /// Just wide enough for a single status glyph per side.
     let privacySideWidth: CGFloat = 30
 
+    /// Room for a running clock rather than a single glyph.
+    let timerSideWidth: CGFloat = 46
+
     enum Status: String, Codable, Hashable, Equatable {
         case closed
         case opened
@@ -77,6 +84,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case files
         case music
         case mirror
+        case timer
 
         var id: Int { rawValue }
     }
@@ -131,6 +139,7 @@ class NotchViewModel: NSObject, ObservableObject {
     /// Shown briefly at the notch edges when the track or transport changes.
     @Published var showMediaFlash: Bool = false
     @Published var privacy: PrivacyState = .idle
+    @Published var timer: TimerSnapshot = .idle
 
     /// Music already playing at launch is not news, do not flash for it.
     var hasSeenNowPlaying: Bool = false

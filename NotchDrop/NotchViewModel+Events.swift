@@ -165,6 +165,15 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
+        NotchTimerModel.shared.snapshot
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                guard let self else { return }
+                withAnimation(animation) { self.timer = snapshot }
+            }
+            .store(in: &cancellables)
+
         $selectedLanguage
             .dropFirst()
             .removeDuplicates()

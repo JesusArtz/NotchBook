@@ -47,20 +47,28 @@ struct NotchView: View {
         vm.status != .opened && vm.hud == nil && vm.showMediaFlash && vm.nowPlaying != nil
     }
 
-    /// Unlike the others this one persists, because it reports a live camera
-    /// or microphone. The brief flashes still win while they are on screen.
+    /// The user started this one deliberately, so it outranks the ambient
+    /// privacy glyphs, which the system also reports on its own.
+    var timerVisible: Bool {
+        vm.status != .opened && vm.hud == nil && !mediaVisible && vm.timer.isActive
+    }
+
+    /// Unlike the flashes this one persists, because it reports a live camera
+    /// or microphone. Anything the user asked to see still wins.
     var privacyVisible: Bool {
-        vm.status != .opened && vm.hud == nil && !mediaVisible && vm.privacy.isActive
+        vm.status != .opened && vm.hud == nil && !mediaVisible && !timerVisible
+            && vm.privacy.isActive
     }
 
     var accessoryVisible: Bool {
-        hudVisible || mediaVisible || privacyVisible
+        hudVisible || mediaVisible || timerVisible || privacyVisible
     }
 
     /// Each accessory needs a different amount of room beside the notch.
     var accessorySideWidth: CGFloat {
         if hudVisible { return vm.hudSideWidth }
         if mediaVisible { return vm.mediaSideWidth }
+        if timerVisible { return vm.timerSideWidth }
         return vm.privacySideWidth
     }
 
@@ -129,6 +137,21 @@ struct NotchView: View {
             .zIndex(1)
             .transition(.opacity.animation(vm.animation))
             Group {
+                if timerVisible {
+                    TimerAccessory(
+                        snapshot: vm.timer,
+                        notchWidth: vm.deviceNotchRect.width,
+                        sideWidth: vm.timerSideWidth
+                    )
+                    .frame(
+                        width: vm.deviceNotchRect.width + vm.timerSideWidth * 2,
+                        height: vm.deviceNotchRect.height
+                    )
+                }
+            }
+            .zIndex(1)
+            .transition(.opacity.animation(vm.animation))
+            Group {
                 if privacyVisible {
                     PrivacyAccessory(
                         state: vm.privacy,
@@ -150,6 +173,7 @@ struct NotchView: View {
         .animation(vm.animation, value: vm.nowPlaying)
         .animation(vm.animation, value: vm.showMediaFlash)
         .animation(vm.animation, value: vm.privacy)
+        .animation(vm.animation, value: vm.timer)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
