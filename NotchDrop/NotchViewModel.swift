@@ -113,12 +113,11 @@ class NotchViewModel: NSObject, ObservableObject {
         )
     }
 
-    /// Clicking the headline cycles the panel. Once tabs occupy its left half
-    /// only the right half, where the menu glyph sits, keeps that behaviour.
+    /// Clicking the headline cycles the panel. Once tabs occupy its right half
+    /// only the left half, where the menu glyph sits, keeps that behaviour.
     var headlineCycleRect: CGRect {
         guard showsPanelTabs else { return headlineOpenedRect }
         var rect = headlineOpenedRect
-        rect.origin.x += rect.width / 2
         rect.size.width /= 2
         return rect
     }

@@ -11,15 +11,24 @@ import SwiftUI
 struct NotchHeaderView: View {
     @StateObject var vm: NotchViewModel
 
+    private var showsTabs: Bool {
+        vm.showsPanelTabs && vm.contentType == .normal
+    }
+
     var body: some View {
         HStack {
-            if vm.showsPanelTabs, vm.contentType == .normal {
-                PanelTabBar(tabs: vm.availableTabs, selection: $vm.panelTab, animation: vm.animation)
+            // The tabs sit opposite the menu glyph, and the notch splits them.
+            if showsTabs {
+                Image(systemName: "ellipsis")
             } else {
                 title
             }
             Spacer()
-            Image(systemName: "ellipsis")
+            if showsTabs {
+                PanelTabBar(tabs: vm.availableTabs, selection: $vm.panelTab, animation: vm.animation)
+            } else {
+                Image(systemName: "ellipsis")
+            }
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showsPanelTabs)
@@ -45,28 +54,39 @@ struct PanelTabBar: View {
     let animation: Animation
 
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 3) {
             ForEach(tabs) { tab in
-                Text(title(for: tab))
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
+                Image(systemName: icon(for: tab))
+                    .font(.system(size: 13, weight: .medium))
+                    .frame(width: 15, height: 15)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .opacity(tab == selection ? 1 : 0.55)
                     .background {
                         if tab == selection {
                             Capsule().foregroundStyle(.white.opacity(0.18))
                         }
                     }
                     .contentShape(Capsule())
+                    // Icons alone are not self explanatory, name them on hover.
+                    .help(title(for: tab))
                     .onTapGesture {
                         withAnimation(animation) { selection = tab }
                     }
             }
         }
-        .padding(3)
-        .background(Capsule().foregroundStyle(.white.opacity(0.07)))
     }
 
-    private func title(for tab: NotchViewModel.PanelTab) -> LocalizedStringKey {
+    private func icon(for tab: NotchViewModel.PanelTab) -> String {
+        switch tab {
+        case .files: "tray.full.fill"
+        case .music: "music.note"
+        case .mirror: "person.crop.square"
+        case .timer: "timer"
+        }
+    }
+
+    private func title(for tab: NotchViewModel.PanelTab) -> String {
         switch tab {
         case .files: "Files"
         case .music: "Music"
