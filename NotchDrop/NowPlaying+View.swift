@@ -86,6 +86,7 @@ struct NowPlayingControls: View {
     let onPrevious: () -> Void
     let onTogglePlay: () -> Void
     let onNext: () -> Void
+    let onSeek: (TimeInterval) -> Void
 
     private let artworkSize: CGFloat = 40
 
@@ -95,6 +96,17 @@ struct NowPlayingControls: View {
     }
 
     var body: some View {
+        VStack(spacing: 8) {
+            header
+            // Generic players expose no timeline, so no bar is drawn for them.
+            if info.hasProgress {
+                ProgressScrubber(info: info, onSeek: onSeek)
+            }
+        }
+        .foregroundStyle(.white)
+    }
+
+    private var header: some View {
         HStack(spacing: 12) {
             ArtworkView(info: info, size: artworkSize, cornerRadius: 8)
 
@@ -121,7 +133,86 @@ struct NowPlayingControls: View {
                 TransportButton(systemName: "forward.fill", action: onNext)
             }
         }
-        .foregroundStyle(.white)
+    }
+}
+
+struct ProgressScrubber: View {
+    let info: NowPlayingInfo
+    let onSeek: (TimeInterval) -> Void
+
+    /// Set while dragging, so the bar follows the finger instead of the poll.
+    @State private var dragFraction: Double?
+
+    private let barHeight: CGFloat = 4
+    private let rowHeight: CGFloat = 14
+
+    var body: some View {
+        Group {
+            if info.isPlaying, dragFraction == nil {
+                // Position is sampled once a second, glide between samples.
+                TimelineView(.animation(minimumInterval: 1.0 / 20.0)) { context in
+                    row(at: context.date)
+                }
+            } else {
+                row(at: Date())
+            }
+        }
+        .frame(height: rowHeight)
+    }
+
+    private func row(at date: Date) -> some View {
+        let elapsed = dragFraction.map { $0 * info.duration } ?? info.elapsed(at: date)
+        let fraction = info.duration > 0 ? elapsed / info.duration : 0
+        return HStack(spacing: 8) {
+            timeLabel(elapsed)
+            bar(fraction: fraction)
+            timeLabel(info.duration)
+        }
+    }
+
+    private func timeLabel(_ seconds: TimeInterval) -> some View {
+        Text(formatted(seconds))
+            .font(.system(.caption2, design: .rounded).monospacedDigit())
+            .foregroundStyle(.secondary)
+            .frame(width: 34)
+    }
+
+    private func bar(fraction: Double) -> some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .foregroundStyle(.white.opacity(0.25))
+                Capsule()
+                    .foregroundStyle(.white)
+                    .frame(width: max(width * fraction, barHeight))
+            }
+            .frame(height: barHeight)
+            .frame(maxHeight: .infinity)
+            // The bar is thin, take the whole row as the grab area.
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        dragFraction = clamped(value.location.x / width)
+                    }
+                    .onEnded { value in
+                        let target = clamped(value.location.x / width)
+                        dragFraction = nil
+                        onSeek(target * info.duration)
+                    }
+            )
+        }
+    }
+
+    private func clamped(_ value: Double) -> Double {
+        min(max(value, 0), 1)
+    }
+
+    private func formatted(_ seconds: TimeInterval) -> String {
+        guard seconds.isFinite, seconds >= 0 else { return "0:00" }
+        let total = Int(seconds.rounded())
+        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }
 
@@ -184,11 +275,15 @@ struct TransportButton: View {
             appName: "Spotify",
             bundleID: "com.spotify.client",
             isPlaying: true,
-            isScriptable: true
+            isScriptable: true,
+            position: 63,
+            duration: 214,
+            positionUpdatedAt: Date()
         ),
         onPrevious: {},
         onTogglePlay: {},
-        onNext: {}
+        onNext: {},
+        onSeek: { _ in }
     )
     .padding()
     .frame(width: 560)

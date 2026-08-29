@@ -22,7 +22,23 @@ struct NowPlayingInfo: Equatable {
     /// True when we can drive the player precisely instead of faking key presses.
     let isScriptable: Bool
 
+    let position: TimeInterval
+    let duration: TimeInterval
+
+    /// When `position` was sampled, so the bar can advance between polls.
+    let positionUpdatedAt: Date
+
     var hasContent: Bool { appIcon != nil || !title.isEmpty }
+
+    /// Only scripted players report a timeline, so only they get a scrubber.
+    var hasProgress: Bool { duration > 0 }
+
+    /// Where the playhead sits now, carried forward since the last sample.
+    func elapsed(at date: Date) -> TimeInterval {
+        guard duration > 0 else { return 0 }
+        let drift = isPlaying ? date.timeIntervalSince(positionUpdatedAt) : 0
+        return min(max(position + drift, 0), duration)
+    }
 }
 
 class NowPlayingMonitor {
@@ -62,6 +78,17 @@ class NowPlayingMonitor {
     func togglePlayPause() { control("playpause") { MediaKeySender.togglePlayPause() } }
     func nextTrack() { control("next track") { MediaKeySender.nextTrack() } }
     func previousTrack() { control("previous track") { MediaKeySender.previousTrack() } }
+
+    /// Only meaningful for scripted players, others have no timeline to seek.
+    func seek(to seconds: TimeInterval) {
+        guard let info = info.value, info.isScriptable,
+              let player = ScriptedPlayer.from(bundleID: info.bundleID)
+        else { return }
+        queue.async { [weak self] in
+            ScriptPlayerReader.seek(to: seconds, for: player)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self?.refresh() }
+        }
+    }
 
     private func control(_ script: String, fallback: @escaping () -> Void) {
         let player = info.value.flatMap { $0.isScriptable ? ScriptedPlayer.from(bundleID: $0.bundleID) : nil }
@@ -129,7 +156,10 @@ class NowPlayingMonitor {
                 bundleID: process.bundleID,
                 // A scripted player reports real state, others are assumed live.
                 isPlaying: track?.isPlaying ?? true,
-                isScriptable: scriptable
+                isScriptable: scriptable,
+                position: track?.position ?? 0,
+                duration: track?.duration ?? 0,
+                positionUpdatedAt: Date()
             )
             send(next.hasContent ? next : nil)
         }

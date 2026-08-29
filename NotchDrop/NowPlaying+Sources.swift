@@ -117,6 +117,8 @@ struct ScriptedTrack: Equatable {
     let album: String
     let artworkURL: String
     let isPlaying: Bool
+    let position: TimeInterval
+    let duration: TimeInterval
 }
 
 enum ScriptPlayerReader {
@@ -124,6 +126,8 @@ enum ScriptPlayerReader {
     private static func metadataScript(for player: ScriptedPlayer) -> String {
         // Spotify is the only one of the two exposing an artwork URL.
         let artwork = player == .spotify ? "artwork url of current track" : "\"\""
+        // Coerced to integers because a real would be formatted with the
+        // system decimal separator, which is a comma in many locales.
         return """
         tell application "\(player.applicationName)"
             if player state is stopped then return ""
@@ -132,7 +136,9 @@ enum ScriptPlayerReader {
             set theAlbum to album of current track
             set theArtwork to \(artwork)
             set theState to player state as text
-            return theTitle & linefeed & theArtist & linefeed & theAlbum & linefeed & theArtwork & linefeed & theState
+            set thePosition to (player position) as integer
+            set theDuration to (duration of current track) as integer
+            return theTitle & linefeed & theArtist & linefeed & theAlbum & linefeed & theArtwork & linefeed & theState & linefeed & (thePosition as text) & linefeed & (theDuration as text)
         end tell
         """
     }
@@ -141,14 +147,23 @@ enum ScriptPlayerReader {
     static func track(for player: ScriptedPlayer) -> ScriptedTrack? {
         guard let output = run(metadataScript(for: player)) else { return nil }
         let fields = output.components(separatedBy: "\n")
-        guard fields.count >= 5, !fields[0].isEmpty else { return nil }
+        guard fields.count >= 7, !fields[0].isEmpty else { return nil }
+        // Spotify reports duration in milliseconds, Music in seconds.
+        let rawDuration = TimeInterval(fields[6]) ?? 0
+        let duration = player == .spotify ? rawDuration / 1000 : rawDuration
         return .init(
             title: fields[0],
             artist: fields[1],
             album: fields[2],
             artworkURL: fields[3],
-            isPlaying: fields[4] == "playing"
+            isPlaying: fields[4] == "playing",
+            position: TimeInterval(fields[5]) ?? 0,
+            duration: duration
         )
+    }
+
+    static func seek(to seconds: TimeInterval, for player: ScriptedPlayer) {
+        command("set player position to \(Int(seconds.rounded()))", for: player)
     }
 
     static func command(_ command: String, for player: ScriptedPlayer) {

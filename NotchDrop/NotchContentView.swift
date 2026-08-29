@@ -23,7 +23,8 @@ struct NotchContentView: View {
                             info: info,
                             onPrevious: { NowPlayingMonitor.shared.previousTrack() },
                             onTogglePlay: { NowPlayingMonitor.shared.togglePlayPause() },
-                            onNext: { NowPlayingMonitor.shared.nextTrack() }
+                            onNext: { NowPlayingMonitor.shared.nextTrack() },
+                            onSeek: { NowPlayingMonitor.shared.seek(to: $0) }
                         )
                     }
                     HStack(spacing: vm.spacing) {

@@ -25,7 +25,8 @@ class NotchViewModel: NSObject, ObservableObject {
     )
     /// The panel grows to fit the now playing row while a player is active.
     var notchOpenedSize: CGSize {
-        .init(width: 600, height: nowPlaying == nil ? 160 : 216)
+        guard let nowPlaying else { return .init(width: 600, height: 160) }
+        return .init(width: 600, height: nowPlaying.hasProgress ? 244 : 216)
     }
     let dropDetectorRange: CGFloat = 32
     /// Width of the HUD panel on each side of the device notch. Kept tight so
