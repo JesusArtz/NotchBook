@@ -17,19 +17,23 @@ struct NotchContentView: View {
         ZStack {
             switch vm.contentType {
             case .normal:
-                VStack(spacing: vm.spacing) {
-                    if let info = vm.nowPlaying {
-                        NowPlayingControls(
-                            info: info,
-                            onPrevious: { NowPlayingMonitor.shared.previousTrack() },
-                            onTogglePlay: { NowPlayingMonitor.shared.togglePlayPause() },
-                            onNext: { NowPlayingMonitor.shared.nextTrack() },
-                            onSeek: { NowPlayingMonitor.shared.seek(to: $0) }
-                        )
-                    }
-                    HStack(spacing: vm.spacing) {
-                        ShareView(vm: vm, type: .airdrop)
-                        TrayView(vm: vm)
+                Group {
+                    switch vm.panelTab {
+                    case .files:
+                        HStack(spacing: vm.spacing) {
+                            ShareView(vm: vm, type: .airdrop)
+                            TrayView(vm: vm)
+                        }
+                    case .music:
+                        if let info = vm.nowPlaying {
+                            NowPlayingControls(
+                                info: info,
+                                onPrevious: { NowPlayingMonitor.shared.previousTrack() },
+                                onTogglePlay: { NowPlayingMonitor.shared.togglePlayPause() },
+                                onNext: { NowPlayingMonitor.shared.nextTrack() },
+                                onSeek: { NowPlayingMonitor.shared.seek(to: $0) }
+                            )
+                        }
                     }
                 }
                 .transition(.scale(scale: 0.8).combined(with: .opacity))
@@ -42,6 +46,7 @@ struct NotchContentView: View {
             }
         }
         .animation(vm.animation, value: vm.contentType)
+        .animation(vm.animation, value: vm.panelTab)
     }
 }
 

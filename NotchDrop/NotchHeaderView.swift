@@ -13,17 +13,63 @@ struct NotchHeaderView: View {
 
     var body: some View {
         HStack {
+            if vm.showsPanelTabs, vm.contentType == .normal {
+                PanelTabBar(selection: $vm.panelTab, animation: vm.animation)
+            } else {
+                title
+            }
+            Spacer()
+            Image(systemName: "ellipsis")
+        }
+        .animation(vm.animation, value: vm.contentType)
+        .animation(vm.animation, value: vm.showsPanelTabs)
+        .font(.system(.headline, design: .rounded))
+    }
+
+    private var title: some View {
+        Group {
             Text(
                 vm.contentType == .settings
                     ? "Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (Build: \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))"
                     : "Notch Drop"
             )
             .contentTransition(.numericText())
-            Spacer()
-            Image(systemName: "ellipsis")
         }
-        .animation(vm.animation, value: vm.contentType)
-        .font(.system(.headline, design: .rounded))
+    }
+}
+
+/// Segmented switch between the file tray and the player.
+struct PanelTabBar: View {
+    @Binding var selection: NotchViewModel.PanelTab
+    let animation: Animation
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(NotchViewModel.PanelTab.allCases) { tab in
+                Text(title(for: tab))
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background {
+                        if tab == selection {
+                            Capsule().foregroundStyle(.white.opacity(0.18))
+                        }
+                    }
+                    .contentShape(Capsule())
+                    .onTapGesture {
+                        withAnimation(animation) { selection = tab }
+                    }
+            }
+        }
+        .padding(3)
+        .background(Capsule().foregroundStyle(.white.opacity(0.07)))
+    }
+
+    private func title(for tab: NotchViewModel.PanelTab) -> LocalizedStringKey {
+        switch tab {
+        case .files: "Files"
+        case .music: "Music"
+        }
     }
 }
 

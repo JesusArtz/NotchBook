@@ -25,9 +25,14 @@ class NotchViewModel: NSObject, ObservableObject {
     )
     /// The panel grows to fit the now playing row while a player is active.
     var notchOpenedSize: CGSize {
-        guard let nowPlaying else { return .init(width: 600, height: 160) }
+        guard let nowPlaying, panelTab == .music else {
+            return .init(width: 600, height: 160)
+        }
         return .init(width: 600, height: nowPlaying.hasProgress ? 244 : 216)
     }
+
+    /// Tabs are only worth showing when there is a second thing to show.
+    var showsPanelTabs: Bool { nowPlaying != nil }
     let dropDetectorRange: CGFloat = 32
     /// Width of the HUD panel on each side of the device notch. Kept tight so
     /// the transient overlay hides as little of the menu bar as possible.
@@ -49,6 +54,13 @@ class NotchViewModel: NSObject, ObservableObject {
         case drag
         case boot
         case unknown
+    }
+
+    enum PanelTab: Int, CaseIterable, Identifiable, Hashable {
+        case files
+        case music
+
+        var id: Int { rawValue }
     }
 
     enum ContentType: Int, Codable, Hashable, Equatable {
@@ -75,9 +87,20 @@ class NotchViewModel: NSObject, ObservableObject {
         )
     }
 
+    /// Clicking the headline cycles the panel. Once tabs occupy its left half
+    /// only the right half, where the menu glyph sits, keeps that behaviour.
+    var headlineCycleRect: CGRect {
+        guard showsPanelTabs else { return headlineOpenedRect }
+        var rect = headlineOpenedRect
+        rect.origin.x += rect.width / 2
+        rect.size.width /= 2
+        return rect
+    }
+
     @Published private(set) var status: Status = .closed
     @Published var openReason: OpenReason = .unknown
     @Published var contentType: ContentType = .normal
+    @Published var panelTab: PanelTab = .files
 
     @Published var spacing: CGFloat = 16
     @Published var cornerRadius: CGFloat = 16
@@ -104,6 +127,8 @@ class NotchViewModel: NSObject, ObservableObject {
 
     func notchOpen(_ reason: OpenReason) {
         hud = nil
+        // A dragged file needs the tray, wherever the user left the tabs.
+        if reason == .drag { panelTab = .files }
         openReason = reason
         status = .opened
         contentType = .normal

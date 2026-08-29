@@ -27,7 +27,7 @@ extension NotchViewModel {
                     } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
                         notchClose()
                         // for the same height as device notch, open the url of project
-                    } else if headlineOpenedRect.contains(mouseLocation) {
+                    } else if headlineCycleRect.contains(mouseLocation) {
                         // for clicking headline which mouse event may handled by another app
                         // open the menu
                         if let nextValue = ContentType(rawValue: contentType.rawValue + 1) {
@@ -129,6 +129,10 @@ extension NotchViewModel {
                 guard let self else { return }
                 let previous = nowPlaying
                 withAnimation(animation) { self.nowPlaying = info }
+                // Nothing playing means no music tab to sit on.
+                if info == nil, panelTab == .music {
+                    withAnimation(animation) { self.panelTab = .files }
+                }
 
                 let wasFirst = !hasSeenNowPlaying
                 hasSeenNowPlaying = true

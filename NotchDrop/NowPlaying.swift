@@ -108,22 +108,56 @@ class NowPlayingMonitor {
     private func refresh() {
         queue.async { [weak self] in
             guard let self else { return }
-            let processes = AudioProcessReader.playingProcesses()
-            guard let process = processes.first else {
+
+            // Asked first, and directly: a paused app releases its output
+            // stream, so CoreAudio stops reporting it while the track is
+            // still loaded and worth showing.
+            if let candidate = scriptedCandidate() {
+                let artwork = artwork(for: candidate.track.artworkURL)
+                publish(
+                    pid: candidate.pid,
+                    bundleID: candidate.player.rawValue,
+                    track: candidate.track,
+                    artwork: artwork,
+                    scriptable: true
+                )
+                return
+            }
+
+            guard let process = AudioProcessReader.playingProcesses().first else {
                 publish(nil)
                 return
             }
 
-            if let player = ScriptedPlayer.from(bundleID: process.bundleID),
-               let track = ScriptPlayerReader.track(for: player) {
-                let artwork = artwork(for: track.artworkURL)
-                publish(process: process, track: track, artwork: artwork, scriptable: true)
-                return
-            }
-
             // Unknown player, the app identity is all we can honestly show.
-            publish(process: process, track: nil, artwork: nil, scriptable: false)
+            publish(
+                pid: process.pid,
+                bundleID: process.bundleID,
+                track: nil,
+                artwork: nil,
+                scriptable: false
+            )
         }
+    }
+
+    /// A playing player wins over a merely paused one.
+    private func scriptedCandidate() -> (player: ScriptedPlayer, track: ScriptedTrack, pid: pid_t)? {
+        var paused: (ScriptedPlayer, ScriptedTrack, pid_t)?
+        for player in ScriptedPlayer.allCases {
+            // Never script an app that is not already open, it would launch it.
+            guard let app = NSRunningApplication
+                .runningApplications(withBundleIdentifier: player.rawValue).first,
+                let track = ScriptPlayerReader.track(for: player)
+            else { continue }
+
+            if track.isPlaying {
+                return (player, track, app.processIdentifier)
+            }
+            if paused == nil {
+                paused = (player, track, app.processIdentifier)
+            }
+        }
+        return paused
     }
 
     private func artwork(for url: String) -> NSImage? {
@@ -138,14 +172,15 @@ class NowPlayingMonitor {
     }
 
     private func publish(
-        process: AudioProcess,
+        pid: pid_t,
+        bundleID: String,
         track: ScriptedTrack?,
         artwork: NSImage?,
         scriptable: Bool
     ) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            let app = NSRunningApplication(processIdentifier: process.pid)
+            let app = NSRunningApplication(processIdentifier: pid)
             let next = NowPlayingInfo(
                 title: track?.title ?? "",
                 artist: track?.artist ?? "",
@@ -153,7 +188,7 @@ class NowPlayingMonitor {
                 artwork: artwork,
                 appIcon: app?.icon,
                 appName: app?.localizedName ?? "",
-                bundleID: process.bundleID,
+                bundleID: bundleID,
                 // A scripted player reports real state, others are assumed live.
                 isPlaying: track?.isPlaying ?? true,
                 isScriptable: scriptable,

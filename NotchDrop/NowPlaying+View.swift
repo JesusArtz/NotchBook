@@ -88,7 +88,7 @@ struct NowPlayingControls: View {
     let onNext: () -> Void
     let onSeek: (TimeInterval) -> Void
 
-    private let artworkSize: CGFloat = 40
+    private let artworkSize: CGFloat = 56
 
     /// The artist when we have one, otherwise the app doing the playing.
     private var subtitle: String {
@@ -96,7 +96,7 @@ struct NowPlayingControls: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             header
             // Generic players expose no timeline, so no bar is drawn for them.
             if info.hasProgress {
@@ -110,9 +110,9 @@ struct NowPlayingControls: View {
         HStack(spacing: 12) {
             ArtworkView(info: info, size: artworkSize, cornerRadius: 8)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(info.title.isEmpty ? info.appName : info.title)
-                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
                     .lineLimit(1)
                 if !subtitle.isEmpty {
                     Text(subtitle)
@@ -123,14 +123,14 @@ struct NowPlayingControls: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 16) {
-                TransportButton(systemName: "backward.fill", action: onPrevious)
+            HStack(spacing: 20) {
+                TransportButton(systemName: "backward.fill", size: 17, action: onPrevious)
                 TransportButton(
                     systemName: info.isPlaying ? "pause.fill" : "play.fill",
-                    size: 18,
+                    size: 23,
                     action: onTogglePlay
                 )
-                TransportButton(systemName: "forward.fill", action: onNext)
+                TransportButton(systemName: "forward.fill", size: 17, action: onNext)
             }
         }
     }
