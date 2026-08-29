@@ -83,6 +83,7 @@ struct PanelTabBar: View {
         case .music: "music.note"
         case .mirror: "person.crop.square"
         case .timer: "timer"
+        case .claude: "sparkles"
         }
     }
 
@@ -92,6 +93,7 @@ struct PanelTabBar: View {
         case .music: "Music"
         case .mirror: "Mirror"
         case .timer: "Timer"
+        case .claude: "Claude"
         }
     }
 }

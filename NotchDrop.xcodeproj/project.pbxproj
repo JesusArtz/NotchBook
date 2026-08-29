@@ -29,6 +29,8 @@
 		504381AF2C3ADFF2000ED325 /* NotchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504381AE2C3ADFF2000ED325 /* NotchContentView.swift */; };
 		504381B12C3AE0B6000ED325 /* NotchHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504381B02C3AE0B6000ED325 /* NotchHeaderView.swift */; };
 		5044EE992C3B069200071C5C /* TrayDrop+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5044EE982C3B069200071C5C /* TrayDrop+View.swift */; };
+		8B1CFA3971A6D16FF6F30784 /* ClaudeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */; };
+		B0FAC5CDEA03379E522D23B4 /* ClaudeBridge+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */; };
 		89DF249231216C33D2A6ED70 /* NotchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43EA7EB7F30745823B34598A /* NotchTimer.swift */; };
 		726451AF9E3758FA3BF2E1B9 /* NotchTimer+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */; };
 		B8DA31DD35AFC51CD68B56B6 /* Mirror+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E974C8613A98D4F2E98829 /* Mirror+View.swift */; };
@@ -82,6 +84,8 @@
 		504381AE2C3ADFF2000ED325 /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
 		504381B02C3AE0B6000ED325 /* NotchHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchHeaderView.swift; sourceTree = "<group>"; };
 		5044EE982C3B069200071C5C /* TrayDrop+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrayDrop+View.swift"; sourceTree = "<group>"; };
+		9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeBridge.swift; sourceTree = "<group>"; };
+		99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaudeBridge+View.swift"; sourceTree = "<group>"; };
 		43EA7EB7F30745823B34598A /* NotchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchTimer.swift; sourceTree = "<group>"; };
 		39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotchTimer+View.swift"; sourceTree = "<group>"; };
 		67E974C8613A98D4F2E98829 /* Mirror+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Mirror+View.swift"; sourceTree = "<group>"; };
@@ -171,6 +175,8 @@
 				50E26E262C3AF5E9007CF247 /* TrayDrop.swift */,
 				50E26E282C3AF67B007CF247 /* TrayDrop+DropItem.swift */,
 				5044EE982C3B069200071C5C /* TrayDrop+View.swift */,
+				9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */,
+				99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */,
 				43EA7EB7F30745823B34598A /* NotchTimer.swift */,
 				39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */,
 				67E974C8613A98D4F2E98829 /* Mirror+View.swift */,
@@ -307,6 +313,8 @@
 				504381A22C3A8BE0000ED325 /* Ext+NSScreen.swift in Sources */,
 				5044EEA42C3B140F00071C5C /* Ext+URL.swift in Sources */,
 				5044EE992C3B069200071C5C /* TrayDrop+View.swift in Sources */,
+				8B1CFA3971A6D16FF6F30784 /* ClaudeBridge.swift in Sources */,
+				B0FAC5CDEA03379E522D23B4 /* ClaudeBridge+View.swift in Sources */,
 				89DF249231216C33D2A6ED70 /* NotchTimer.swift in Sources */,
 				726451AF9E3758FA3BF2E1B9 /* NotchTimer+View.swift in Sources */,
 				B8DA31DD35AFC51CD68B56B6 /* Mirror+View.swift in Sources */,

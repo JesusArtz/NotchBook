@@ -38,38 +38,43 @@ struct NotchView: View {
         }
     }
 
-    var hudVisible: Bool {
-        vm.status != .opened && vm.hud != nil
+    /// One band, many claimants. Ordered by urgency first, then by whether
+    /// the user asked to see it at all.
+    enum Accessory: Equatable {
+        case none
+        case hud
+        case claudePermission
+        case media
+        case claudeFinished
+        case timer
+        case privacy
     }
 
-    /// Now playing only flashes on a change, it never sits over the menu bar.
-    var mediaVisible: Bool {
-        vm.status != .opened && vm.hud == nil && vm.showMediaFlash && vm.nowPlaying != nil
+    var accessory: Accessory {
+        guard vm.status != .opened else { return .none }
+        if vm.hud != nil { return .hud }
+        // A blocked hook is waiting on an answer, nothing outranks that.
+        if vm.claude.hasPending { return .claudePermission }
+        if vm.showMediaFlash, vm.nowPlaying != nil { return .media }
+        if vm.claude.finishedFlash != nil { return .claudeFinished }
+        if vm.timer.isActive { return .timer }
+        // The system reports a live camera on its own, so this yields to all.
+        if vm.privacy.isActive { return .privacy }
+        return .none
     }
 
-    /// The user started this one deliberately, so it outranks the ambient
-    /// privacy glyphs, which the system also reports on its own.
-    var timerVisible: Bool {
-        vm.status != .opened && vm.hud == nil && !mediaVisible && vm.timer.isActive
-    }
-
-    /// Unlike the flashes this one persists, because it reports a live camera
-    /// or microphone. Anything the user asked to see still wins.
-    var privacyVisible: Bool {
-        vm.status != .opened && vm.hud == nil && !mediaVisible && !timerVisible
-            && vm.privacy.isActive
-    }
-
-    var accessoryVisible: Bool {
-        hudVisible || mediaVisible || timerVisible || privacyVisible
-    }
+    var accessoryVisible: Bool { accessory != .none }
 
     /// Each accessory needs a different amount of room beside the notch.
     var accessorySideWidth: CGFloat {
-        if hudVisible { return vm.hudSideWidth }
-        if mediaVisible { return vm.mediaSideWidth }
-        if timerVisible { return vm.timerSideWidth }
-        return vm.privacySideWidth
+        switch accessory {
+        case .hud: vm.hudSideWidth
+        case .media: vm.mediaSideWidth
+        case .timer: vm.timerSideWidth
+        case .claudePermission, .claudeFinished: vm.claudeSideWidth
+        case .privacy: vm.privacySideWidth
+        case .none: 0
+        }
     }
 
     var notchCornerRadius: CGFloat {
@@ -107,64 +112,32 @@ struct NotchView: View {
                 ).animation(vm.animation)
             )
             Group {
-                if hudVisible, let hud = vm.hud {
-                    NotchHUDView(
-                        payload: hud,
-                        notchWidth: vm.deviceNotchRect.width,
-                        sideWidth: vm.hudSideWidth
-                    )
-                    .frame(
-                        width: vm.deviceNotchRect.width + vm.hudSideWidth * 2,
-                        height: vm.deviceNotchRect.height
-                    )
+                switch accessory {
+                case .hud:
+                    if let hud = vm.hud {
+                        band { NotchHUDView(payload: hud, notchWidth: $0, sideWidth: $1) }
+                    }
+                case .media:
+                    if let info = vm.nowPlaying {
+                        band { NowPlayingAccessory(info: info, notchWidth: $0, sideWidth: $1) }
+                    }
+                case .claudePermission:
+                    if let event = vm.claude.pending {
+                        band { ClaudeAccessory(event: event, notchWidth: $0, sideWidth: $1) }
+                    }
+                case .claudeFinished:
+                    if let event = vm.claude.finishedFlash {
+                        band { ClaudeAccessory(event: event, notchWidth: $0, sideWidth: $1) }
+                    }
+                case .timer:
+                    band { TimerAccessory(snapshot: vm.timer, notchWidth: $0, sideWidth: $1) }
+                case .privacy:
+                    band { PrivacyAccessory(state: vm.privacy, notchWidth: $0, sideWidth: $1) }
+                case .none:
+                    EmptyView()
                 }
             }
             .zIndex(2)
-            .transition(.opacity.animation(vm.animation))
-            Group {
-                if mediaVisible, let info = vm.nowPlaying {
-                    NowPlayingAccessory(
-                        info: info,
-                        notchWidth: vm.deviceNotchRect.width,
-                        sideWidth: vm.mediaSideWidth
-                    )
-                    .frame(
-                        width: vm.deviceNotchRect.width + vm.mediaSideWidth * 2,
-                        height: vm.deviceNotchRect.height
-                    )
-                }
-            }
-            .zIndex(1)
-            .transition(.opacity.animation(vm.animation))
-            Group {
-                if timerVisible {
-                    TimerAccessory(
-                        snapshot: vm.timer,
-                        notchWidth: vm.deviceNotchRect.width,
-                        sideWidth: vm.timerSideWidth
-                    )
-                    .frame(
-                        width: vm.deviceNotchRect.width + vm.timerSideWidth * 2,
-                        height: vm.deviceNotchRect.height
-                    )
-                }
-            }
-            .zIndex(1)
-            .transition(.opacity.animation(vm.animation))
-            Group {
-                if privacyVisible {
-                    PrivacyAccessory(
-                        state: vm.privacy,
-                        notchWidth: vm.deviceNotchRect.width,
-                        sideWidth: vm.privacySideWidth
-                    )
-                    .frame(
-                        width: vm.deviceNotchRect.width + vm.privacySideWidth * 2,
-                        height: vm.deviceNotchRect.height
-                    )
-                }
-            }
-            .zIndex(1)
             .transition(.opacity.animation(vm.animation))
         }
         .background(dragDetector)
@@ -174,8 +147,21 @@ struct NotchView: View {
         .animation(vm.animation, value: vm.showMediaFlash)
         .animation(vm.animation, value: vm.privacy)
         .animation(vm.animation, value: vm.timer)
+        .animation(vm.animation, value: vm.claude)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    /// Every accessory occupies the same strip, straddling the notch.
+    @ViewBuilder
+    private func band<Content: View>(
+        @ViewBuilder _ content: (CGFloat, CGFloat) -> Content
+    ) -> some View {
+        content(vm.deviceNotchRect.width, accessorySideWidth)
+            .frame(
+                width: vm.deviceNotchRect.width + accessorySideWidth * 2,
+                height: vm.deviceNotchRect.height
+            )
     }
 
     var notch: some View {

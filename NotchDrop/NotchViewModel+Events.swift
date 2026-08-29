@@ -174,6 +174,15 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
+        ClaudeBridge.shared.state
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                withAnimation(animation) { self.claude = state }
+            }
+            .store(in: &cancellables)
+
         $selectedLanguage
             .dropFirst()
             .removeDuplicates()
