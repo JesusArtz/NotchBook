@@ -129,10 +129,6 @@ extension NotchViewModel {
                 guard let self else { return }
                 let previous = nowPlaying
                 withAnimation(animation) { self.nowPlaying = info }
-                // Nothing playing means no music tab to sit on.
-                if info == nil, panelTab == .music {
-                    withAnimation(animation) { self.panelTab = .files }
-                }
 
                 let wasFirst = !hasSeenNowPlaying
                 hasSeenNowPlaying = true

@@ -25,7 +25,7 @@ class NotchViewModel: NSObject, ObservableObject {
     )
     /// The panel grows to fit the now playing row while a player is active.
     var notchOpenedSize: CGSize {
-        guard let nowPlaying, panelTab == .music else {
+        guard let nowPlaying, effectiveTab == .music else {
             return .init(width: 600, height: 160)
         }
         return .init(width: 600, height: nowPlaying.hasProgress ? 244 : 216)
@@ -33,6 +33,12 @@ class NotchViewModel: NSObject, ObservableObject {
 
     /// Tabs are only worth showing when there is a second thing to show.
     var showsPanelTabs: Bool { nowPlaying != nil }
+
+    /// The stored tab survives restarts, so it can point at music that is no
+    /// longer there. Fall back for display without forgetting the choice.
+    var effectiveTab: PanelTab {
+        nowPlaying == nil ? .files : panelTab
+    }
     let dropDetectorRange: CGFloat = 32
     /// Width of the HUD panel on each side of the device notch. Kept tight so
     /// the transient overlay hides as little of the menu bar as possible.
@@ -56,7 +62,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case unknown
     }
 
-    enum PanelTab: Int, CaseIterable, Identifiable, Hashable {
+    enum PanelTab: Int, Codable, CaseIterable, Identifiable, Hashable {
         case files
         case music
 
@@ -100,7 +106,6 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published private(set) var status: Status = .closed
     @Published var openReason: OpenReason = .unknown
     @Published var contentType: ContentType = .normal
-    @Published var panelTab: PanelTab = .files
 
     @Published var spacing: CGFloat = 16
     @Published var cornerRadius: CGFloat = 16
@@ -122,6 +127,9 @@ class NotchViewModel: NSObject, ObservableObject {
 
     @PublishedPersist(key: "hapticFeedback", defaultValue: true)
     var hapticFeedback: Bool
+
+    @PublishedPersist(key: "panelTab", defaultValue: .files)
+    var panelTab: PanelTab
 
     let hapticSender = PassthroughSubject<Void, Never>()
 

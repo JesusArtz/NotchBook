@@ -18,7 +18,7 @@ struct NotchContentView: View {
             switch vm.contentType {
             case .normal:
                 Group {
-                    switch vm.panelTab {
+                    switch vm.effectiveTab {
                     case .files:
                         HStack(spacing: vm.spacing) {
                             ShareView(vm: vm, type: .airdrop)
@@ -46,7 +46,7 @@ struct NotchContentView: View {
             }
         }
         .animation(vm.animation, value: vm.contentType)
-        .animation(vm.animation, value: vm.panelTab)
+        .animation(vm.animation, value: vm.effectiveTab)
     }
 }
 
