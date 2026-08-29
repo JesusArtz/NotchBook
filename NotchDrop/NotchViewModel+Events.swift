@@ -27,7 +27,7 @@ extension NotchViewModel {
                     } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
                         notchClose()
                         // for the same height as device notch, open the url of project
-                    } else if headlineOpenedRect.contains(mouseLocation) {
+                    } else if headlineCycleRect.contains(mouseLocation) {
                         // for clicking headline which mouse event may handled by another app
                         // open the menu
                         if let nextValue = ContentType(rawValue: contentType.rawValue + 1) {
@@ -100,6 +100,86 @@ extension NotchViewModel {
                 withAnimation {
                     self?.notchVisible = false
                 }
+            }
+            .store(in: &cancellables)
+
+        HUDMonitor.shared.hudChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] payload in
+                guard let self else { return }
+                // The opened panel owns the notch, do not fight it.
+                guard status != .opened else { return }
+                withAnimation(animation) { self.hud = payload }
+            }
+            .store(in: &cancellables)
+
+        // Each new reading restarts the timer, so holding a key keeps it up.
+        $hud
+            .debounce(for: .seconds(hudDismissDelay), scheduler: DispatchQueue.main)
+            .sink { [weak self] payload in
+                guard let self, payload != nil else { return }
+                withAnimation(animation) { self.hud = nil }
+            }
+            .store(in: &cancellables)
+
+        NowPlayingMonitor.shared.info
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] info in
+                guard let self else { return }
+                let previous = nowPlaying
+                withAnimation(animation) { self.nowPlaying = info }
+
+                let wasFirst = !hasSeenNowPlaying
+                hasSeenNowPlaying = true
+                guard let info else { return }
+                // Whatever was already playing when we launched is not an event.
+                guard !wasFirst else { return }
+
+                let trackChanged = previous?.title != info.title
+                    || previous?.artist != info.artist
+                    || previous?.bundleID != info.bundleID
+                let transportChanged = previous?.isPlaying != info.isPlaying
+                guard trackChanged || transportChanged else { return }
+
+                withAnimation(animation) { self.showMediaFlash = true }
+            }
+            .store(in: &cancellables)
+
+        // Re-flashing restarts the timer, so a burst of skips stays on screen.
+        $showMediaFlash
+            .filter { $0 }
+            .debounce(for: .seconds(mediaFlashDuration), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                withAnimation(animation) { self.showMediaFlash = false }
+            }
+            .store(in: &cancellables)
+
+        PrivacyMonitor.shared.state
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                withAnimation(animation) { self.privacy = state }
+            }
+            .store(in: &cancellables)
+
+        NotchTimerModel.shared.snapshot
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                guard let self else { return }
+                withAnimation(animation) { self.timer = snapshot }
+            }
+            .store(in: &cancellables)
+
+        ClaudeBridge.shared.state
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                withAnimation(animation) { self.claude = state }
             }
             .store(in: &cancellables)
 

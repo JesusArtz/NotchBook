@@ -29,6 +29,19 @@
 		504381AF2C3ADFF2000ED325 /* NotchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504381AE2C3ADFF2000ED325 /* NotchContentView.swift */; };
 		504381B12C3AE0B6000ED325 /* NotchHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504381B02C3AE0B6000ED325 /* NotchHeaderView.swift */; };
 		5044EE992C3B069200071C5C /* TrayDrop+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5044EE982C3B069200071C5C /* TrayDrop+View.swift */; };
+		8B1CFA3971A6D16FF6F30784 /* ClaudeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */; };
+		B0FAC5CDEA03379E522D23B4 /* ClaudeBridge+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */; };
+		89DF249231216C33D2A6ED70 /* NotchTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43EA7EB7F30745823B34598A /* NotchTimer.swift */; };
+		726451AF9E3758FA3BF2E1B9 /* NotchTimer+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */; };
+		B8DA31DD35AFC51CD68B56B6 /* Mirror+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E974C8613A98D4F2E98829 /* Mirror+View.swift */; };
+		958DDC56F3DCAB800AB4DA56 /* PrivacyIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64583A639C7903278F30CE40 /* PrivacyIndicator.swift */; };
+		A237A8BA8DE76ABBD009CBCA /* NowPlaying+Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C74E16C47654164504CEB73 /* NowPlaying+Sources.swift */; };
+		BA547935C1B18B27E7BFFCDD /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E521D4E87001BE34382D0E /* NowPlaying.swift */; };
+		5D2C86C3049DE00D0BC3CFCC /* NowPlaying+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C700E6061AC2BBD0545AE /* NowPlaying+View.swift */; };
+		4C47D05CB8D0B4E7A5DFCD00 /* HUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE45E1F94273B49F33EFE217 /* HUD.swift */; };
+		A5C1853A59B248555CE7EF7D /* HUD+Volume.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98666F63297178A877A8613 /* HUD+Volume.swift */; };
+		0DBF47CE523D625F3BCF5C3B /* HUD+Brightness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8936C65C44D1D2925FA98205 /* HUD+Brightness.swift */; };
+		1DB2A78C26AEE48E778325E7 /* HUD+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68C831101A79B7FDE328BD7 /* HUD+View.swift */; };
 		5044EE9C2C3B082300071C5C /* Pow in Frameworks */ = {isa = PBXBuildFile; productRef = 5044EE9B2C3B082300071C5C /* Pow */; };
 		5044EE9E2C3B0F3D00071C5C /* Ext+FileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5044EE9D2C3B0F3D00071C5C /* Ext+FileProvider.swift */; };
 		5044EEA02C3B116000071C5C /* PublishedPersist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5044EE9F2C3B116000071C5C /* PublishedPersist.swift */; };
@@ -71,6 +84,19 @@
 		504381AE2C3ADFF2000ED325 /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
 		504381B02C3AE0B6000ED325 /* NotchHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchHeaderView.swift; sourceTree = "<group>"; };
 		5044EE982C3B069200071C5C /* TrayDrop+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrayDrop+View.swift"; sourceTree = "<group>"; };
+		9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeBridge.swift; sourceTree = "<group>"; };
+		99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaudeBridge+View.swift"; sourceTree = "<group>"; };
+		43EA7EB7F30745823B34598A /* NotchTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchTimer.swift; sourceTree = "<group>"; };
+		39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotchTimer+View.swift"; sourceTree = "<group>"; };
+		67E974C8613A98D4F2E98829 /* Mirror+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Mirror+View.swift"; sourceTree = "<group>"; };
+		64583A639C7903278F30CE40 /* PrivacyIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyIndicator.swift; sourceTree = "<group>"; };
+		2C74E16C47654164504CEB73 /* NowPlaying+Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NowPlaying+Sources.swift"; sourceTree = "<group>"; };
+		B8E521D4E87001BE34382D0E /* NowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
+		D78C700E6061AC2BBD0545AE /* NowPlaying+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NowPlaying+View.swift"; sourceTree = "<group>"; };
+		EE45E1F94273B49F33EFE217 /* HUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUD.swift; sourceTree = "<group>"; };
+		D98666F63297178A877A8613 /* HUD+Volume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HUD+Volume.swift"; sourceTree = "<group>"; };
+		8936C65C44D1D2925FA98205 /* HUD+Brightness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HUD+Brightness.swift"; sourceTree = "<group>"; };
+		B68C831101A79B7FDE328BD7 /* HUD+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HUD+View.swift"; sourceTree = "<group>"; };
 		5044EE9D2C3B0F3D00071C5C /* Ext+FileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext+FileProvider.swift"; sourceTree = "<group>"; };
 		5044EE9F2C3B116000071C5C /* PublishedPersist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishedPersist.swift; sourceTree = "<group>"; };
 		5044EEA12C3B126F00071C5C /* TrayDrop+DropItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrayDrop+DropItemView.swift"; sourceTree = "<group>"; };
@@ -149,6 +175,19 @@
 				50E26E262C3AF5E9007CF247 /* TrayDrop.swift */,
 				50E26E282C3AF67B007CF247 /* TrayDrop+DropItem.swift */,
 				5044EE982C3B069200071C5C /* TrayDrop+View.swift */,
+				9A44D4240D3B173BCA553088 /* ClaudeBridge.swift */,
+				99BBD6A8928A2B1CE7DBB225 /* ClaudeBridge+View.swift */,
+				43EA7EB7F30745823B34598A /* NotchTimer.swift */,
+				39FD6C4961E77B55E5C4A02F /* NotchTimer+View.swift */,
+				67E974C8613A98D4F2E98829 /* Mirror+View.swift */,
+				64583A639C7903278F30CE40 /* PrivacyIndicator.swift */,
+				2C74E16C47654164504CEB73 /* NowPlaying+Sources.swift */,
+				B8E521D4E87001BE34382D0E /* NowPlaying.swift */,
+				D78C700E6061AC2BBD0545AE /* NowPlaying+View.swift */,
+				EE45E1F94273B49F33EFE217 /* HUD.swift */,
+				D98666F63297178A877A8613 /* HUD+Volume.swift */,
+				8936C65C44D1D2925FA98205 /* HUD+Brightness.swift */,
+				B68C831101A79B7FDE328BD7 /* HUD+View.swift */,
 				5044EEA12C3B126F00071C5C /* TrayDrop+DropItemView.swift */,
 				5044EEA32C3B140F00071C5C /* Ext+URL.swift */,
 				50EFDB512C3BF7B4002D3E0F /* Ext+NSImage.swift */,
@@ -274,6 +313,19 @@
 				504381A22C3A8BE0000ED325 /* Ext+NSScreen.swift in Sources */,
 				5044EEA42C3B140F00071C5C /* Ext+URL.swift in Sources */,
 				5044EE992C3B069200071C5C /* TrayDrop+View.swift in Sources */,
+				8B1CFA3971A6D16FF6F30784 /* ClaudeBridge.swift in Sources */,
+				B0FAC5CDEA03379E522D23B4 /* ClaudeBridge+View.swift in Sources */,
+				89DF249231216C33D2A6ED70 /* NotchTimer.swift in Sources */,
+				726451AF9E3758FA3BF2E1B9 /* NotchTimer+View.swift in Sources */,
+				B8DA31DD35AFC51CD68B56B6 /* Mirror+View.swift in Sources */,
+				958DDC56F3DCAB800AB4DA56 /* PrivacyIndicator.swift in Sources */,
+				A237A8BA8DE76ABBD009CBCA /* NowPlaying+Sources.swift in Sources */,
+				BA547935C1B18B27E7BFFCDD /* NowPlaying.swift in Sources */,
+				5D2C86C3049DE00D0BC3CFCC /* NowPlaying+View.swift in Sources */,
+				4C47D05CB8D0B4E7A5DFCD00 /* HUD.swift in Sources */,
+				A5C1853A59B248555CE7EF7D /* HUD+Volume.swift in Sources */,
+				0DBF47CE523D625F3BCF5C3B /* HUD+Brightness.swift in Sources */,
+				1DB2A78C26AEE48E778325E7 /* HUD+View.swift in Sources */,
 				50CB767E2C3BC8880070D5E6 /* NotchViewModel+Events.swift in Sources */,
 				504381AC2C3A95BD000ED325 /* EventMonitors.swift in Sources */,
 				502E41D62C3CEC990060660E /* Ext+NSAlert.swift in Sources */,
