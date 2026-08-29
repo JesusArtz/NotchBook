@@ -25,19 +25,27 @@ class NotchViewModel: NSObject, ObservableObject {
     )
     /// The panel grows to fit the now playing row while a player is active.
     var notchOpenedSize: CGSize {
-        guard let nowPlaying, effectiveTab == .music else {
-            return .init(width: 600, height: 160)
+        switch effectiveTab {
+        case .files:
+            .init(width: 600, height: 160)
+        case .music:
+            .init(width: 600, height: nowPlaying?.hasProgress == true ? 244 : 216)
+        case .mirror:
+            .init(width: 600, height: 300)
         }
-        return .init(width: 600, height: nowPlaying.hasProgress ? 244 : 216)
     }
 
-    /// Tabs are only worth showing when there is a second thing to show.
-    var showsPanelTabs: Bool { nowPlaying != nil }
+    /// Music only earns a tab while something is loaded to play.
+    var availableTabs: [PanelTab] {
+        nowPlaying == nil ? [.files, .mirror] : [.files, .music, .mirror]
+    }
+
+    var showsPanelTabs: Bool { availableTabs.count > 1 }
 
     /// The stored tab survives restarts, so it can point at music that is no
     /// longer there. Fall back for display without forgetting the choice.
     var effectiveTab: PanelTab {
-        nowPlaying == nil ? .files : panelTab
+        availableTabs.contains(panelTab) ? panelTab : .files
     }
     let dropDetectorRange: CGFloat = 32
     /// Width of the HUD panel on each side of the device notch. Kept tight so
@@ -48,6 +56,9 @@ class NotchViewModel: NSObject, ObservableObject {
     /// The now playing flash only needs room for artwork and a few bars.
     let mediaSideWidth: CGFloat = 34
     let mediaFlashDuration: TimeInterval = 2.5
+
+    /// Just wide enough for a single status glyph per side.
+    let privacySideWidth: CGFloat = 30
 
     enum Status: String, Codable, Hashable, Equatable {
         case closed
@@ -65,6 +76,7 @@ class NotchViewModel: NSObject, ObservableObject {
     enum PanelTab: Int, Codable, CaseIterable, Identifiable, Hashable {
         case files
         case music
+        case mirror
 
         var id: Int { rawValue }
     }
@@ -118,6 +130,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     /// Shown briefly at the notch edges when the track or transport changes.
     @Published var showMediaFlash: Bool = false
+    @Published var privacy: PrivacyState = .idle
 
     /// Music already playing at launch is not news, do not flash for it.
     var hasSeenNowPlaying: Bool = false

@@ -156,6 +156,15 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
+        PrivacyMonitor.shared.state
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                withAnimation(animation) { self.privacy = state }
+            }
+            .store(in: &cancellables)
+
         $selectedLanguage
             .dropFirst()
             .removeDuplicates()

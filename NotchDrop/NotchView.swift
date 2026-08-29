@@ -47,13 +47,21 @@ struct NotchView: View {
         vm.status != .opened && vm.hud == nil && vm.showMediaFlash && vm.nowPlaying != nil
     }
 
-    var accessoryVisible: Bool {
-        hudVisible || mediaVisible
+    /// Unlike the others this one persists, because it reports a live camera
+    /// or microphone. The brief flashes still win while they are on screen.
+    var privacyVisible: Bool {
+        vm.status != .opened && vm.hud == nil && !mediaVisible && vm.privacy.isActive
     }
 
-    /// The HUD needs room for a progress bar, the media flash does not.
+    var accessoryVisible: Bool {
+        hudVisible || mediaVisible || privacyVisible
+    }
+
+    /// Each accessory needs a different amount of room beside the notch.
     var accessorySideWidth: CGFloat {
-        hudVisible ? vm.hudSideWidth : vm.mediaSideWidth
+        if hudVisible { return vm.hudSideWidth }
+        if mediaVisible { return vm.mediaSideWidth }
+        return vm.privacySideWidth
     }
 
     var notchCornerRadius: CGFloat {
@@ -120,12 +128,28 @@ struct NotchView: View {
             }
             .zIndex(1)
             .transition(.opacity.animation(vm.animation))
+            Group {
+                if privacyVisible {
+                    PrivacyAccessory(
+                        state: vm.privacy,
+                        notchWidth: vm.deviceNotchRect.width,
+                        sideWidth: vm.privacySideWidth
+                    )
+                    .frame(
+                        width: vm.deviceNotchRect.width + vm.privacySideWidth * 2,
+                        height: vm.deviceNotchRect.height
+                    )
+                }
+            }
+            .zIndex(1)
+            .transition(.opacity.animation(vm.animation))
         }
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
         .animation(vm.animation, value: vm.hud)
         .animation(vm.animation, value: vm.nowPlaying)
         .animation(vm.animation, value: vm.showMediaFlash)
+        .animation(vm.animation, value: vm.privacy)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }

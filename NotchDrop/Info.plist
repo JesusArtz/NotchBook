@@ -6,5 +6,7 @@
 	<false/>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>NotchDrop reads track info from Spotify and Music to show it in the notch.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>NotchDrop shows a mirror preview in the notch.</string>
 </dict>
 </plist>

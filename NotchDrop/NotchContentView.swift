@@ -24,6 +24,8 @@ struct NotchContentView: View {
                             ShareView(vm: vm, type: .airdrop)
                             TrayView(vm: vm)
                         }
+                    case .mirror:
+                        MirrorView()
                     case .music:
                         if let info = vm.nowPlaying {
                             NowPlayingControls(

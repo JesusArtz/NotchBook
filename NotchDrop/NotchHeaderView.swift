@@ -14,7 +14,7 @@ struct NotchHeaderView: View {
     var body: some View {
         HStack {
             if vm.showsPanelTabs, vm.contentType == .normal {
-                PanelTabBar(selection: $vm.panelTab, animation: vm.animation)
+                PanelTabBar(tabs: vm.availableTabs, selection: $vm.panelTab, animation: vm.animation)
             } else {
                 title
             }
@@ -40,12 +40,13 @@ struct NotchHeaderView: View {
 
 /// Segmented switch between the file tray and the player.
 struct PanelTabBar: View {
+    let tabs: [NotchViewModel.PanelTab]
     @Binding var selection: NotchViewModel.PanelTab
     let animation: Animation
 
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(NotchViewModel.PanelTab.allCases) { tab in
+            ForEach(tabs) { tab in
                 Text(title(for: tab))
                     .font(.system(.subheadline, design: .rounded).weight(.medium))
                     .padding(.horizontal, 12)
@@ -69,6 +70,7 @@ struct PanelTabBar: View {
         switch tab {
         case .files: "Files"
         case .music: "Music"
+        case .mirror: "Mirror"
         }
     }
 }
