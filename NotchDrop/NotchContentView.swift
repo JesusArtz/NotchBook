@@ -17,9 +17,19 @@ struct NotchContentView: View {
         ZStack {
             switch vm.contentType {
             case .normal:
-                HStack(spacing: vm.spacing) {
-                    ShareView(vm: vm, type: .airdrop)
-                    TrayView(vm: vm)
+                VStack(spacing: vm.spacing) {
+                    if let info = vm.nowPlaying {
+                        NowPlayingControls(
+                            info: info,
+                            onPrevious: { NowPlayingMonitor.shared.previousTrack() },
+                            onTogglePlay: { NowPlayingMonitor.shared.togglePlayPause() },
+                            onNext: { NowPlayingMonitor.shared.nextTrack() }
+                        )
+                    }
+                    HStack(spacing: vm.spacing) {
+                        ShareView(vm: vm, type: .airdrop)
+                        TrayView(vm: vm)
+                    }
                 }
                 .transition(.scale(scale: 0.8).combined(with: .opacity))
             case .menu:

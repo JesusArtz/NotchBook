@@ -13,6 +13,12 @@ struct NotchView: View {
     @State var dropTargeting: Bool = false
 
     var notchSize: CGSize {
+        if accessoryVisible {
+            return .init(
+                width: vm.deviceNotchRect.width + accessorySideWidth * 2,
+                height: vm.deviceNotchRect.height
+            )
+        }
         switch vm.status {
         case .closed:
             var ans = CGSize(
@@ -32,8 +38,27 @@ struct NotchView: View {
         }
     }
 
+    var hudVisible: Bool {
+        vm.status != .opened && vm.hud != nil
+    }
+
+    /// Now playing only flashes on a change, it never sits over the menu bar.
+    var mediaVisible: Bool {
+        vm.status != .opened && vm.hud == nil && vm.showMediaFlash && vm.nowPlaying != nil
+    }
+
+    var accessoryVisible: Bool {
+        hudVisible || mediaVisible
+    }
+
+    /// The HUD needs room for a progress bar, the media flash does not.
+    var accessorySideWidth: CGFloat {
+        hudVisible ? vm.hudSideWidth : vm.mediaSideWidth
+    }
+
     var notchCornerRadius: CGFloat {
-        switch vm.status {
+        guard !accessoryVisible else { return 10 }
+        return switch vm.status {
         case .closed: 8
         case .opened: 32
         case .popping: 10
@@ -45,7 +70,7 @@ struct NotchView: View {
             notch
                 .zIndex(0)
                 .disabled(true)
-                .opacity(vm.notchVisible ? 1 : 0.3)
+                .opacity(vm.notchVisible || accessoryVisible ? 1 : 0.3)
             Group {
                 if vm.status == .opened {
                     VStack(spacing: vm.spacing) {
@@ -65,9 +90,42 @@ struct NotchView: View {
                     with: .offset(y: -vm.notchOpenedSize.height / 2)
                 ).animation(vm.animation)
             )
+            Group {
+                if hudVisible, let hud = vm.hud {
+                    NotchHUDView(
+                        payload: hud,
+                        notchWidth: vm.deviceNotchRect.width,
+                        sideWidth: vm.hudSideWidth
+                    )
+                    .frame(
+                        width: vm.deviceNotchRect.width + vm.hudSideWidth * 2,
+                        height: vm.deviceNotchRect.height
+                    )
+                }
+            }
+            .zIndex(2)
+            .transition(.opacity.animation(vm.animation))
+            Group {
+                if mediaVisible, let info = vm.nowPlaying {
+                    NowPlayingAccessory(
+                        info: info,
+                        notchWidth: vm.deviceNotchRect.width,
+                        sideWidth: vm.mediaSideWidth
+                    )
+                    .frame(
+                        width: vm.deviceNotchRect.width + vm.mediaSideWidth * 2,
+                        height: vm.deviceNotchRect.height
+                    )
+                }
+            }
+            .zIndex(1)
+            .transition(.opacity.animation(vm.animation))
         }
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
+        .animation(vm.animation, value: vm.hud)
+        .animation(vm.animation, value: vm.nowPlaying)
+        .animation(vm.animation, value: vm.showMediaFlash)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }

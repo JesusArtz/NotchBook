@@ -4,5 +4,7 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>NotchDrop reads track info from Spotify and Music to show it in the notch.</string>
 </dict>
 </plist>

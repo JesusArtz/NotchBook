@@ -23,8 +23,19 @@ class NotchViewModel: NSObject, ObservableObject {
         extraBounce: 0.25,
         blendDuration: 0.125
     )
-    let notchOpenedSize: CGSize = .init(width: 600, height: 160)
+    /// The panel grows to fit the now playing row while a player is active.
+    var notchOpenedSize: CGSize {
+        .init(width: 600, height: nowPlaying == nil ? 160 : 216)
+    }
     let dropDetectorRange: CGFloat = 32
+    /// Width of the HUD panel on each side of the device notch. Kept tight so
+    /// the transient overlay hides as little of the menu bar as possible.
+    let hudSideWidth: CGFloat = 62
+    let hudDismissDelay: TimeInterval = 1.6
+
+    /// The now playing flash only needs room for artwork and a few bars.
+    let mediaSideWidth: CGFloat = 34
+    let mediaFlashDuration: TimeInterval = 2.5
 
     enum Status: String, Codable, Hashable, Equatable {
         case closed
@@ -73,6 +84,14 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var notchVisible: Bool = true
+    @Published var hud: HUDPayload?
+    @Published var nowPlaying: NowPlayingInfo?
+
+    /// Shown briefly at the notch edges when the track or transport changes.
+    @Published var showMediaFlash: Bool = false
+
+    /// Music already playing at launch is not news, do not flash for it.
+    var hasSeenNowPlaying: Bool = false
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -83,6 +102,7 @@ class NotchViewModel: NSObject, ObservableObject {
     let hapticSender = PassthroughSubject<Void, Never>()
 
     func notchOpen(_ reason: OpenReason) {
+        hud = nil
         openReason = reason
         status = .opened
         contentType = .normal
